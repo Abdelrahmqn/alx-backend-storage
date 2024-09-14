@@ -23,6 +23,21 @@ def count_calls(method: Callable) -> Callable:
     return inc
 
 
+def call_history(method: Callable) -> Callable:
+    """  """
+    key = method.__qualname__
+    inp = key + ":inputs"
+    out = key + ":outputs"
+
+    @functools.wraps(method)
+    def wrapping_mthod(self, *args, **kwargs):
+        """  """
+        self._redis.rpush(inp, str(args))
+        self._redis.rpush(out, str(data))
+        data = method(self, *args, **kwargs)
+        return data
+    return wrapping_mthod
+
 class Cache:
     """Cach class
     """
@@ -34,6 +49,8 @@ class Cache:
         self._redis = redis.Redis()
         self._redis.flushdb()
 
+    @count_calls
+    @call_history
     def store(self, data: typing.Union[str, float, bytes, int]) -> str:
         """
         args: data.
@@ -68,3 +85,26 @@ class Cache:
         """to int
         """
         return self.get(key, fn=lambda d: int(d))
+
+def replay(method: Callable):
+    """
+    display the history of calls
+    """
+    key = method.__qualname__
+    inputs = key + ":inputs"
+    outputs = key + ":outputs"
+
+    redis = method.__self__._redis
+
+    count = redis.get(key).decode("utf-8")
+
+    print("{} was called {} times:".format(key, count))
+
+    inputList = redis.lrange(inputs, 0, -1)
+    outputList = redis.lrange(outputs, 0, -1)
+
+    ziped = list(zip(inputList, outputList))
+
+    for a, b in ziped:
+        attr, data = a.decode("utf-8"), b.decode("utf-8")
+        print("{}(*{}) -> {}".format(key, attr, data))
