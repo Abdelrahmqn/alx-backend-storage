@@ -3,9 +3,10 @@
 """
 import random
 import uuid
-from redis import Redis
+import redis
 import typing
 import uuid
+from typing import Callable
 
 
 class Cache:
@@ -16,7 +17,7 @@ class Cache:
         """ redis obj
             create a connection and flush the db
         """
-        self._redis = Redis()
+        self._redis = redis.Redis()
         self._redis.flushdb()
 
     def store(self, data: typing.Union[str, float, bytes, int]) -> str:
@@ -32,15 +33,23 @@ class Cache:
         self._redis.set(my_key, data)
         return my_key
 
-    def get_str(self, key: str, fn: typing.callable) -> str:
+    def get(self, key: str, fn: typing.Optional[Callable]) -> typing.Any:
         """
         """
-        data_format = str(fn)
+        val = self._redis.get(key)
+        if not val:
+            return None
+        if fn:
+            return fn(val)
+        return val
 
-        return str(data_format)
+    def get_str(self, key: str) -> str:
+        """
+        calls the get method to str
+        """
+        return self.get(key, fn=lambda d: d.decode("utf-8"))
 
-    def get_int(self, key: str, fn: typing.callable) -> int:
+    def get_int(self, key: str) -> int:
+        """to int
         """
-        """
-        data_format = int(fn)
-        return int(data_format)
+        return self.get(key, fn=int)
