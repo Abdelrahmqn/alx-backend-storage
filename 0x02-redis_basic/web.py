@@ -10,7 +10,7 @@ redis_ = redis.Redis()
 
 
 def count_requests(method: Callable) -> Callable:
-    """ Decortator 
+    """ Decortator
     {http://slowwly.robertomurray.co.uk}
     """
     @wraps(method)

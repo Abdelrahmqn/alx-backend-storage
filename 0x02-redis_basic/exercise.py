@@ -38,6 +38,7 @@ def call_history(method: Callable) -> Callable:
         return data
     return wrapping_mthod
 
+
 class Cache:
     """Cach class
     """
@@ -85,6 +86,7 @@ class Cache:
         """to int
         """
         return self.get(key, fn=lambda d: int(d))
+
 
 def replay(method: Callable):
     """
