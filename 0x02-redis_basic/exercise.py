@@ -7,6 +7,20 @@ import redis
 import typing
 import uuid
 from typing import Callable
+import functools
+
+
+def count_calls(method: Callable) -> Callable:
+    """how many
+    """
+    key = method.__qualname__
+
+    @functools.wraps(method)
+    def inc(self, *args, **kwargs):
+        """func"""
+        self._redis.incr(key)
+        return method(self, *args, **kwargs)
+    return inc
 
 
 class Cache:
