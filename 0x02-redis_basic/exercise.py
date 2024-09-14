@@ -6,7 +6,7 @@ import uuid
 import redis
 import typing
 import uuid
-from typing import Callable
+from typing import Callable, Union, Optional
 import functools
 
 
@@ -47,7 +47,8 @@ class Cache:
         self._redis.set(my_key, data)
         return my_key
 
-    def get(self, key: str, fn: typing.Optional[Callable]) -> typing.Any:
+    def get(self, key: str,
+            fn: Optional[Callable] = None) -> Union[str, float, bytes, int]:
         """
         """
         val = self._redis.get(key)
