@@ -11,15 +11,15 @@ import functools
 
 
 def count_calls(method: Callable) -> Callable:
-    """how many
-    """
+    """Decorator to count how many times the method is called"""
     key = method.__qualname__
 
     @functools.wraps(method)
     def inc(self, *args, **kwargs):
-        """func"""
-        self._redis.incr(key)
+        """Function to increment the count of method calls"""
+        self._redis.incr(key)   # Increment Redis key corresponding to method
         return method(self, *args, **kwargs)
+
     return inc
 
 
@@ -51,7 +51,7 @@ class Cache:
         """
         """
         val = self._redis.get(key)
-        if not val:
+        if val is None:
             return None
         if fn:
             return fn(val)
@@ -66,4 +66,4 @@ class Cache:
     def get_int(self, key: str) -> int:
         """to int
         """
-        return self.get(key, fn=int)
+        return self.get(key, fn=lambda d: int(d))
