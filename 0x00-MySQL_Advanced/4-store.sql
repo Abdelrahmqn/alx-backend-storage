@@ -1,4 +1,4 @@
--- CREATE TRIGGERS;
+-- creating triggers in mysql
 
 DELIMITER $$
 CREATE TRIGGERS AFTER INSERT ON orders
